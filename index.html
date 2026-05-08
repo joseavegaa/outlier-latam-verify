@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Verify Certificate · Outlier LATAM Coders</title>
+<style>
+  :root {
+    --ink: #0F0F10;
+    --subtle: #6B6B6B;
+    --hairline: #E5E5E5;
+    --orange: #FF6E0F;
+    --orange-deep: #CF6325;
+    --tint: #FFF4EB;
+    --green: #1F7A4D;
+    --green-bg: #F1FAF5;
+    --red: #B91C1C;
+    --red-bg: #FEF2F2;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+                 Arial, sans-serif;
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0 18px;
+    border-bottom: 1px solid var(--orange);
+    margin-bottom: 36px;
+  }
+  .brand     { font-weight: 800; font-size: 24px; letter-spacing: -0.5px; }
+  .program   { color: var(--orange-deep); font-weight: 700; font-size: 14px; }
+  h1 {
+    font-family: "Times New Roman", Times, serif;
+    font-weight: 400;
+    font-size: 32px;
+    margin: 0 0 8px;
+  }
+  .lead { color: var(--subtle); margin: 0 0 28px; }
+  .form { display: flex; gap: 8px; margin-bottom: 28px; }
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    text-transform: uppercase;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px var(--tint);
+  }
+  button {
+    padding: 12px 20px;
+    background: var(--ink);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover    { background: #000; }
+  button:disabled { opacity: 0.6; cursor: progress; }
+  .result {
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .result.ok   { border-color: var(--green); background: var(--green-bg); }
+  .result.bad  { border-color: var(--red);   background: var(--red-bg); }
+  .result.idle { border-style: dashed; color: var(--subtle); text-align: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 12px;
+  }
+  .ok  .badge { color: var(--green); }
+  .bad .badge { color: var(--red); }
+  .field {
+    display: grid; grid-template-columns: 130px 1fr;
+    gap: 8px; padding: 6px 0;
+    border-top: 1px solid var(--hairline); font-size: 14px;
+  }
+  .field:first-of-type { border-top: 0; }
+  .field .k { color: var(--subtle); }
+  .field .v { color: var(--ink); font-weight: 500; }
+  .recipient {
+    font-family: "Times New Roman", Times, serif;
+    font-style: italic; font-size: 22px; margin: 8px 0 16px;
+  }
+  footer {
+    margin-top: 48px; padding-top: 16px;
+    border-top: 1px solid var(--hairline);
+    color: var(--subtle); font-size: 12px; text-align: center;
+  }
+  @media (max-width: 480px) {
+    .form { flex-direction: column; }
+    .field { grid-template-columns: 1fr; gap: 2px; }
+    .field .k { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="brand">Outlier</span>
+    <span class="program">LATAM Coders</span>
+  </header>
+
+  <h1>Certificate Verification</h1>
+  <p class="lead">
+    Enter the code printed on the certificate (or scan its QR code) to confirm
+    its authenticity. Records are end-to-end encrypted, only a valid
+    code can decrypt the corresponding entry.
+  </p>
+
+  <div class="form">
+    <input id="codeInput" type="text" placeholder="OL-XXXXXXXX"
+           autocomplete="off" autocapitalize="characters" />
+    <button id="checkBtn">Verify</button>
+  </div>
+
+  <div id="result" class="result idle">Awaiting a code…</div>
+
+  <footer>
+    Issued by Outlier · LATAM Coders Program
+  </footer>
+</div>
+
+<script>
+(() => {
+  const DATA_URL = "verifications.json";
+  let DATA = null;
+
+  // --- Helpers ---------------------------------------------------------
+
+  const enc = new TextEncoder();
+  const dec = new TextDecoder();
+
+  function b64ToBytes(b64) {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  function bytesToHex(buf) {
+    return Array.from(new Uint8Array(buf))
+      .map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function sha256Hex(text) {
+    const buf = await crypto.subtle.digest("SHA-256", enc.encode(text));
+    return bytesToHex(buf);
+  }
+
+  async function loadData() {
+    if (DATA) return DATA;
+    const res = await fetch(DATA_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    DATA = await res.json();
+    return DATA;
+  }
+
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function fmtDate(iso) {
+    const d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString("en-US",
+      { year:"numeric", month:"long", day:"numeric" });
+  }
+
+  // --- Crypto: derive key from code, decrypt one record ----------------
+
+  async function decryptRecord(code, record, kdfParams) {
+    const salt = b64ToBytes(record.s);
+    const nonce = b64ToBytes(record.n);
+    const ciphertext = b64ToBytes(record.c);
+
+    const baseKey = await crypto.subtle.importKey(
+      "raw", enc.encode(code), "PBKDF2", false, ["deriveKey"]
+    );
+    const key = await crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt,
+        iterations: kdfParams.iterations,
+        hash: kdfParams.hash,
+      },
+      baseKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["decrypt"]
+    );
+    const plaintext = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: nonce }, key, ciphertext
+    );
+    return JSON.parse(dec.decode(plaintext));
+  }
+
+  // --- UI states -------------------------------------------------------
+
+  function render(state) {
+    const el = document.getElementById("result");
+    if (state.kind === "idle") {
+      el.className = "result idle";
+      el.textContent = "Awaiting a code…";
+    } else if (state.kind === "loading") {
+      el.className = "result idle";
+      el.textContent = "Verifying…";
+    } else if (state.kind === "ok") {
+      const r = state.record;
+      el.className = "result ok";
+      el.innerHTML = `
+        <div class="badge">✓ Verified</div>
+        <div class="recipient">${escapeHTML(r.full_name)}</div>
+        <div class="field"><span class="k">Webinar</span>
+          <span class="v">${escapeHTML(r.training)}</span></div>
+        <div class="field"><span class="k">Duration</span>
+          <span class="v">${escapeHTML(r.duration_hours)} hour(s)</span></div>
+        <div class="field"><span class="k">Date held</span>
+          <span class="v">${escapeHTML(fmtDate(r.date))}</span></div>
+        <div class="field"><span class="k">Issued</span>
+          <span class="v">${escapeHTML(fmtDate(r.issued))}</span></div>
+        <div class="field"><span class="k">Verification code</span>
+          <span class="v" style="font-family:ui-monospace,monospace">
+            ${escapeHTML(r.verification_code)}</span></div>
+      `;
+    } else {
+      el.className = "result bad";
+      el.innerHTML = `
+        <div class="badge">✗ Not found</div>
+        <div>The code <code>${escapeHTML(state.code)}</code> does not match
+        any certificate on record. Check that you've typed it correctly,
+        including the <strong>OL-</strong> prefix.</div>
+      `;
+    }
+  }
+
+  // --- Verify flow -----------------------------------------------------
+
+  async function check(rawCode) {
+    const code = (rawCode || "").trim().toUpperCase();
+    if (!code) { render({ kind: "idle" }); return; }
+
+    const btn = document.getElementById("checkBtn");
+    btn.disabled = true;
+    render({ kind: "loading" });
+
+    try {
+      const data = await loadData();
+      const codeHash = (await sha256Hex(code)).slice(0, 16);
+
+      // A hash collision is ~1 in 2^64 — possible in theory, so try every match.
+      const candidates = data.records.filter(r => r.h === codeHash);
+      for (const cand of candidates) {
+        try {
+          const record = await decryptRecord(code, cand, data.kdf);
+          render({ kind: "ok", record });
+          return;
+        } catch (_) { /* wrong code; keep trying */ }
+      }
+      render({ kind: "bad", code });
+    } catch (err) {
+      console.error(err);
+      render({ kind: "bad", code });
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // --- Wire up ---------------------------------------------------------
+
+  const input = document.getElementById("codeInput");
+  document.getElementById("checkBtn").addEventListener("click",
+    () => check(input.value));
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") check(input.value);
+  });
+
+  // Auto-verify if URL has ?code=XXX 
+  const params = new URLSearchParams(window.location.search);
+  const urlCode = params.get("code");
+  if (urlCode) {
+    input.value = urlCode.toUpperCase();
+    check(urlCode);
+  }
+})();
+</script>
+</body>
+</html>
