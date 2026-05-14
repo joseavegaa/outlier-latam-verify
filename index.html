@@ -6,67 +6,73 @@
 <title>Verify Certificate · Outlier LATAM Coders</title>
 <style>
   :root {
-    --ink: #0F0F10;
-    --subtle: #6B6B6B;
-    --hairline: #E5E5E5;
-    --orange: #FF6E0F;
-    --orange-deep: #CF6325;
-    --tint: #FFF4EB;
-    --green: #1F7A4D;
-    --green-bg: #F1FAF5;
-    --red: #B91C1C;
-    --red-bg: #FEF2F2;
+    --navy:       #0B1B47;
+    --navy-text:  #1A2A5C;
+    --blue:       #4A6FBD;
+    --blue-light: #9EB8E8;
+    --bg:         #F0F4FC;
+    --text-body:  #3D4866;
+    --subtle:     #7A8499;
+    --rule:       #C8D4EC;
+    --green:      #1F7A4D;
+    --green-bg:   #ECF8F1;
+    --red:        #B91C1C;
+    --red-bg:     #FEF2F2;
   }
   * { box-sizing: border-box; }
   html, body {
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
-                 Arial, sans-serif;
-    color: var(--ink);
-    background: #fff;
+    margin: 0; padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 Helvetica, Arial, sans-serif;
+    color: var(--navy-text);
+    background: var(--bg);
     line-height: 1.5;
   }
-  .wrap {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 32px 24px 64px;
-  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 24px 64px; }
   header {
+    background: var(--navy);
+    color: #fff;
+    padding: 18px 24px;
+    margin: 0 -24px 36px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 0 18px;
-    border-bottom: 1px solid var(--orange);
-    margin-bottom: 36px;
   }
-  .brand     { font-weight: 800; font-size: 24px; letter-spacing: -0.5px; }
-  .program   { color: var(--orange-deep); font-weight: 700; font-size: 14px; }
+  .brand   { font-weight: 800; font-size: 24px; letter-spacing: -0.5px; }
+  .program {
+    color: var(--blue-light);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
   h1 {
-    font-family: "Times New Roman", Times, serif;
+    font-family: 'Playfair Display', Georgia, "Times New Roman", serif;
     font-weight: 400;
-    font-size: 32px;
+    font-size: 36px;
     margin: 0 0 8px;
+    color: var(--navy-text);
   }
-  .lead { color: var(--subtle); margin: 0 0 28px; }
+  .lead { color: var(--text-body); margin: 0 0 28px; }
   .form { display: flex; gap: 8px; margin-bottom: 28px; }
   input[type="text"] {
     flex: 1;
     padding: 12px 14px;
-    border: 1px solid var(--hairline);
+    border: 1px solid var(--rule);
     border-radius: 6px;
     font-size: 15px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     text-transform: uppercase;
+    background: #fff;
   }
   input[type="text"]:focus {
     outline: none;
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px var(--tint);
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(74, 111, 189, 0.18);
   }
   button {
-    padding: 12px 20px;
-    background: var(--ink);
+    padding: 12px 22px;
+    background: var(--navy);
     color: #fff;
     border: 0;
     border-radius: 6px;
@@ -74,13 +80,14 @@
     font-weight: 600;
     cursor: pointer;
   }
-  button:hover    { background: #000; }
+  button:hover    { background: #06143A; }
   button:disabled { opacity: 0.6; cursor: progress; }
   .result {
-    border: 1px solid var(--hairline);
+    border: 1px solid var(--rule);
     border-radius: 8px;
     padding: 24px;
     margin-bottom: 16px;
+    background: #fff;
   }
   .result.ok   { border-color: var(--green); background: var(--green-bg); }
   .result.bad  { border-color: var(--red);   background: var(--red-bg); }
@@ -93,28 +100,39 @@
   .ok  .badge { color: var(--green); }
   .bad .badge { color: var(--red); }
   .field {
-    display: grid; grid-template-columns: 130px 1fr;
-    gap: 8px; padding: 6px 0;
-    border-top: 1px solid var(--hairline); font-size: 14px;
+    display: grid; grid-template-columns: 140px 1fr;
+    gap: 8px; padding: 8px 0;
+    border-top: 1px solid var(--rule); font-size: 14px;
   }
   .field:first-of-type { border-top: 0; }
   .field .k { color: var(--subtle); }
-  .field .v { color: var(--ink); font-weight: 500; }
+  .field .v { color: var(--navy-text); font-weight: 500; }
   .recipient {
-    font-family: "Times New Roman", Times, serif;
-    font-style: italic; font-size: 22px; margin: 8px 0 16px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 26px;
+    margin: 8px 0 18px;
+    color: var(--navy-text);
   }
   footer {
-    margin-top: 48px; padding-top: 16px;
-    border-top: 1px solid var(--hairline);
-    color: var(--subtle); font-size: 12px; text-align: center;
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    color: var(--subtle);
+    font-size: 12px;
+    text-align: center;
   }
   @media (max-width: 480px) {
     .form { flex-direction: column; }
     .field { grid-template-columns: 1fr; gap: 2px; }
     .field .k { font-size: 12px; }
+    h1 { font-size: 28px; }
   }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital@0;1&display=swap">
 </head>
 <body>
 <div class="wrap">
@@ -126,7 +144,7 @@
   <h1>Certificate Verification</h1>
   <p class="lead">
     Enter the code printed on the certificate (or scan its QR code) to confirm
-    its authenticity. Records are end-to-end encrypted, only a valid
+    its authenticity. Records are end-to-end encrypted &mdash; only a valid
     code can decrypt the corresponding entry.
   </p>
 
@@ -139,7 +157,7 @@
   <div id="result" class="result idle">Awaiting a code…</div>
 
   <footer>
-    Issued by Outlier · LATAM Coders Program
+    Issued by Outlier &middot; LATAM Coders Program
   </footer>
 </div>
 
@@ -147,8 +165,6 @@
 (() => {
   const DATA_URL = "verifications.json";
   let DATA = null;
-
-  // --- Helpers ---------------------------------------------------------
 
   const enc = new TextEncoder();
   const dec = new TextDecoder();
@@ -159,12 +175,10 @@
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
     return out;
   }
-
   function bytesToHex(buf) {
     return Array.from(new Uint8Array(buf))
       .map(b => b.toString(16).padStart(2, "0")).join("");
   }
-
   async function sha256Hex(text) {
     const buf = await crypto.subtle.digest("SHA-256", enc.encode(text));
     return bytesToHex(buf);
@@ -183,7 +197,6 @@
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
     }[c]));
   }
-
   function fmtDate(iso) {
     const d = new Date(iso + "T00:00:00");
     if (isNaN(d)) return iso;
@@ -191,35 +204,24 @@
       { year:"numeric", month:"long", day:"numeric" });
   }
 
-  // --- Crypto: derive key from code, decrypt one record ----------------
-
   async function decryptRecord(code, record, kdfParams) {
     const salt = b64ToBytes(record.s);
     const nonce = b64ToBytes(record.n);
     const ciphertext = b64ToBytes(record.c);
-
     const baseKey = await crypto.subtle.importKey(
       "raw", enc.encode(code), "PBKDF2", false, ["deriveKey"]
     );
     const key = await crypto.subtle.deriveKey(
-      {
-        name: "PBKDF2",
-        salt,
-        iterations: kdfParams.iterations,
-        hash: kdfParams.hash,
-      },
+      { name: "PBKDF2", salt, iterations: kdfParams.iterations, hash: kdfParams.hash },
       baseKey,
       { name: "AES-GCM", length: 256 },
-      false,
-      ["decrypt"]
+      false, ["decrypt"]
     );
     const plaintext = await crypto.subtle.decrypt(
       { name: "AES-GCM", iv: nonce }, key, ciphertext
     );
     return JSON.parse(dec.decode(plaintext));
   }
-
-  // --- UI states -------------------------------------------------------
 
   function render(state) {
     const el = document.getElementById("result");
@@ -231,14 +233,15 @@
       el.textContent = "Verifying…";
     } else if (state.kind === "ok") {
       const r = state.record;
+      const session = r.session_type || "session";
       el.className = "result ok";
       el.innerHTML = `
         <div class="badge">✓ Verified</div>
         <div class="recipient">${escapeHTML(r.full_name)}</div>
-        <div class="field"><span class="k">Webinar</span>
+        <div class="field"><span class="k">Title</span>
           <span class="v">${escapeHTML(r.training)}</span></div>
-        <div class="field"><span class="k">Duration</span>
-          <span class="v">${escapeHTML(r.duration_hours)} hour(s)</span></div>
+        <div class="field"><span class="k">Type</span>
+          <span class="v">${escapeHTML(r.duration_hours)}-hour ${escapeHTML(session)}</span></div>
         <div class="field"><span class="k">Date held</span>
           <span class="v">${escapeHTML(fmtDate(r.date))}</span></div>
         <div class="field"><span class="k">Issued</span>
@@ -258,8 +261,6 @@
     }
   }
 
-  // --- Verify flow -----------------------------------------------------
-
   async function check(rawCode) {
     const code = (rawCode || "").trim().toUpperCase();
     if (!code) { render({ kind: "idle" }); return; }
@@ -271,15 +272,13 @@
     try {
       const data = await loadData();
       const codeHash = (await sha256Hex(code)).slice(0, 16);
-
-      // A hash collision is ~1 in 2^64 — possible in theory, so try every match.
       const candidates = data.records.filter(r => r.h === codeHash);
       for (const cand of candidates) {
         try {
           const record = await decryptRecord(code, cand, data.kdf);
           render({ kind: "ok", record });
           return;
-        } catch (_) { /* wrong code; keep trying */ }
+        } catch (_) { /* hash collision; try next */ }
       }
       render({ kind: "bad", code });
     } catch (err) {
@@ -290,8 +289,6 @@
     }
   }
 
-  // --- Wire up ---------------------------------------------------------
-
   const input = document.getElementById("codeInput");
   document.getElementById("checkBtn").addEventListener("click",
     () => check(input.value));
@@ -299,7 +296,7 @@
     if (e.key === "Enter") check(input.value);
   });
 
-  // Auto-verify if URL has ?code=XXX 
+  // Auto-verify if URL has ?code=XXX (this is what the QR codes encode)
   const params = new URLSearchParams(window.location.search);
   const urlCode = params.get("code");
   if (urlCode) {
